@@ -1,0 +1,169 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "7c3db941-9cd7-4c44-b897-10602e90ab14",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        740,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM products WHERE created_on between date_sub( '{{ $json[\"fromDatetime\"] }}' ,INTERVAL 1 DAY) and ' {{ $json[\"fromDatetime\"] }}';\n"
+      },
+      "id": "624258e9-d362-4ec6-805b-b926af47866e",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        460
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "1",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:3000/products/mysql",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{JSON.stringify($json[\"item\"])}}",
+        "options": {}
+      },
+      "id": "bcc358df-75b0-4c1d-a60a-8ba4d8a16701",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1620,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{ $json.timestamp }}",
+        "dataPropertyName": "fromDatetime",
+        "custom": true,
+        "toFormat": "YYYY-MM-DDTHH:mm:ss.SSSZ",
+        "options": {
+          "fromFormat": "YYYY-MM-DDTHH:mm:ss.SSSZ",
+          "toTimezone": "UTC"
+        }
+      },
+      "id": "666130b1-b02a-4745-90dc-9bb53153411c",
+      "name": "Datetime to UTC",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        960,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "item.nameProduct",
+              "value": "={{ $json[\"name\"] }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "item.priceItem",
+              "value": "={{ $json[\"price\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "c97c1a1d-68a3-4071-b88d-6d7f2292353e",
+      "name": "Prepare Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        460
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Datetime to UTC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "Prepare Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datetime to UTC": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "39ae67da-8338-4cb1-89b5-76f046b15321",
+  "id": 1,
+  "meta": {
+    "instanceId": "5f889eecadbeb1f4cc6e75402d868a20b45ecf057542fac4716398a41c672c5e"
+  },
+  "tags": []
+}

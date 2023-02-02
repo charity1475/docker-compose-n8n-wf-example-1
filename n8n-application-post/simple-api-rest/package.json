@@ -1,0 +1,14 @@
+{
+  "name": "example-api",
+  "version": "1.0.0",
+  "description": "simple api just for test",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Álvaro Morales",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
