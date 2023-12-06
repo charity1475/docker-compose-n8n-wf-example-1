@@ -17,5 +17,6 @@ app.get('/', (req, res) => {
 
 app.post('/products/mysql', function (req, res) {
   console.log(`Received item: ${JSON.stringify(req.body)}`)
+  // save your transformed item in the database...
   res.json({ status: 'success' })
 })
